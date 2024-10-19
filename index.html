@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vega-Lite Fire Data Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+</head>
+<body>
+
+<h2>Fire Data in Australia (Proportional Symbol Map)</h2>
+<div id="symbol"></div>
+
+<script type="text/javascript">
+    // Proportional Symbol Map
+    vegaEmbed('#symbol', {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "width": 700,
+        "height": 500,
+        "projection": {
+            "type": "mercator",  // Switch projection type to mercator for better visualization
+            "center": [134, -28],  // Centered on Australia
+            "scale": 700  // Adjust scale to fit the country nicely
+        },
+        "layer": [
+          // Layer for the country outline
+          {
+            "data": {
+              "url": "australia_outline.geojson",  // Ensure the path to GeoJSON is correct
+              "format": {"type": "json"}
+            },
+            "mark": {
+              "type": "geoshape",
+              "stroke": "darkgray",   // Darker border for better visibility
+              "strokeWidth": 1,
+              "fill": "#f0f0f0"       // Soft background color for Australia
+            }
+          },
+          // Layer for the graticule (latitude/longitude lines)
+          {
+            "data": {
+              "graticule": true
+            },
+            "mark": {
+              "type": "geoshape",
+              "stroke": "lightgray",
+              "strokeWidth": 0.5
+            }
+          },
+          // Layer for the fire points
+          {
+            "data": {
+              "url": "fire_data_australia.csv"
+            },
+            "mark": {
+                "type": "circle",
+                "opacity": 0.7,
+                "stroke": "black",
+                "strokeWidth": 0.5
+            },
+            "encoding": {
+                "longitude": {"field": "longitude", "type": "quantitative"},
+                "latitude": {"field": "latitude", "type": "quantitative"},
+                "size": {
+                    "field": "frp", 
+                    "type": "quantitative", 
+                    "scale": {"range": [20, 1000]},
+                    "legend": {"title": "Fire Intensity (FRP)"}
+                },
+                "color": {
+                    "field": "frp", 
+                    "type": "quantitative",
+                    "scale": {"scheme": "reds"},
+                    "legend": {"title": "Fire Intensity"}
+                },
+                "tooltip": [
+                    {"field": "acq_date", "type": "temporal", "title": "Date"},
+                    {"field": "frp", "type": "quantitative", "title": "Fire Radiative Power"}
+                ]
+            }
+          }
+        ]
+    });
+</script>
+
+</body>
+</html>
